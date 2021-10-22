@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: GVAT-German VATID validation service
+  description: golang RESTful service for validating German VATID numbers
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8000'
+tags:
+  - name: Validation
+paths:
+  /validate/{vat_id}:
+    get:
+      tags:
+        - Validation
+      summary: Validate a given VATID number
+      operationId: validate_vat_id
+      parameters:
+        - in: path
+          name: vat_id
+          schema:
+            type: string
+            format: DE123456789
+            example: DE123456789
+            required: true
+            description: vat identification number
+        - in: header
+          name: trace-id
+          schema:
+            type: string
+            format: uuid
+            description: trace id for the request
+            example: 534952e6-32f5-11ec-8d3d-0242ac130003
+      responses:
+        '201':
+          description: success no response
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+              example:
+                code: 4000
+                description: 'provided id is not a german id'
+                trace_id: '534952e6-32f5-11ec-8d3d-0242ac130003'
+        '424':
+          description: failed dependency
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+              example:
+                code: 4200
+                description: 'EU/Vies service unreachable'
+                trace_id: '534952e6-32f5-11ec-8d3d-0242ac130003'
+        '500':
+          description: application failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+              example:
+                code: 5000
+                description: 'EU/Vies service unreachable'
+                trace_id: '534952e6-32f5-11ec-8d3d-0242ac130003'
+
+components:
+  schemas:
+    errorResponse:
+      type: object
+      properties:
+        code:
+          type: number
+          format: int64
+          description: 'error code associated with the error'
+          example: 4000
+        description:
+          type: string
+          description: 'error description'
+          example: "field 'name' missing in request"
+          format: 'free text'
+        trace_id:
+          type: string
+          format: unique string
+          example: 'f7e3e7a2-d397-4f3c-a7c4-2756159dc8b1'
+          description: 'unique id to trace the request logs in the server end'
+

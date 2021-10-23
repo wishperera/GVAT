@@ -52,12 +52,12 @@ func (c *Config) Print() string {
 	return string(byt)
 }
 
+//nolint // defaultLogLevel already defined by trace
 func (c *Config) Validate() error {
 	switch c.Level {
 	case logLevelTrace, logLevelDebug, logLevelFatal, logLevelInfo, logLevelError:
+		return nil
 	default:
 		return fmt.Errorf("invalid log level: %s", c.Level)
 	}
-
-	return nil
 }

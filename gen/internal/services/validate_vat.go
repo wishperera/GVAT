@@ -34,7 +34,7 @@ func (v *ValidateVAT) Validate(ctx context.Context, id string) (err error) {
 }
 
 // validateFormat: checks the id is a german id, and validates whether the format is correct
-func (v *ValidateVAT) validateFormat(ctx context.Context, id string) error {
+func (v *ValidateVAT) validateFormat(_ context.Context, id string) error {
 	// check the prefix for the country code
 	valid, err := regexp.Match("DE[[:digit:]]{9}", []byte(id))
 	if err != nil {

@@ -11,39 +11,13 @@ import (
 
 type logLevel int
 
-func (l logLevel) String() string {
-	switch l {
-	case 1:
-		return "TRACE"
-	case 2:
-		return "DEBUG"
-	case 3:
-		return "INFO"
-	case 4:
-		return "ERROR"
-	case 5:
-		return "FATAL"
-	default:
-		return ""
-	}
-}
-
-func parseLogLevel(str string) (l logLevel, err error) {
-	switch str {
-	case "TRACE":
-		return logLevelTrace, nil
-	case "DEBUG":
-		return logLevelDebug, nil
-	case "INFO":
-		return logLevelInfo, nil
-	case "ERROR":
-		return logLevelError, nil
-	case "FATAL":
-		return logLevelFatal, nil
-	default:
-		return l, fmt.Errorf("unknown log level: %s", str)
-	}
-}
+const (
+	labelTrace = "TRACE"
+	labelDebug = "DEBUG"
+	labelInfo  = "INFO"
+	labelError = "ERROR"
+	labelFatal = "FATAL"
+)
 
 const (
 	logLevelTrace logLevel = iota + 1
@@ -57,6 +31,41 @@ const (
 	// logMessageFormat : [trace-id][log level][prefix][message][params]
 	logMessageFormat = "[%s] [%s] %s [%s][%s]"
 )
+
+//nolint // defaultLogLevel already defined by trace
+func (l logLevel) String() string {
+	switch l {
+	case logLevelTrace:
+		return labelTrace
+	case logLevelDebug:
+		return labelDebug
+	case logLevelInfo:
+		return labelInfo
+	case logLevelError:
+		return labelError
+	case logLevelFatal:
+		return labelFatal
+	default:
+		return ""
+	}
+}
+
+func parseLogLevel(str string) (l logLevel, err error) {
+	switch str {
+	case labelTrace:
+		return logLevelTrace, nil
+	case labelDebug:
+		return logLevelDebug, nil
+	case labelInfo:
+		return logLevelInfo, nil
+	case labelError:
+		return logLevelError, nil
+	case labelFatal:
+		return logLevelFatal, nil
+	default:
+		return l, fmt.Errorf("unknown log level: %s", str)
+	}
+}
 
 type Log struct {
 	prefix string
@@ -79,64 +88,64 @@ func (l *Log) NewLog(prefix string) Logger {
 	return newLog
 }
 
-func (l Log) InfoContext(ctx context.Context, message string, params ...param) {
+func (l Log) InfoContext(ctx context.Context, message string, params ...Param) {
 	if l.level <= logLevelInfo {
 		log.Println(composeMessage(ctx, logLevelInfo, l.prefix, message, params...))
 	}
 }
 
-func (l Log) ErrorContext(ctx context.Context, message string, params ...param) {
+func (l Log) ErrorContext(ctx context.Context, message string, params ...Param) {
 	if l.level <= logLevelError {
 		log.Println(composeMessage(ctx, logLevelError, l.prefix, message, params...))
 	}
 }
 
-func (l Log) DebugContext(ctx context.Context, message string, params ...param) {
+func (l Log) DebugContext(ctx context.Context, message string, params ...Param) {
 	if l.level <= logLevelDebug {
 		log.Println(composeMessage(ctx, logLevelDebug, l.prefix, message, params...))
 	}
 }
 
-func (l Log) FatalContext(ctx context.Context, message string, params ...param) {
+func (l Log) FatalContext(ctx context.Context, message string, params ...Param) {
 	if l.level <= logLevelFatal {
 		log.Fatalln(composeMessage(ctx, logLevelFatal, l.prefix, message, params...))
 	}
 }
 
-func (l Log) TraceContext(ctx context.Context, message string, params ...param) {
+func (l Log) TraceContext(ctx context.Context, message string, params ...Param) {
 	if l.level <= logLevelTrace {
 		log.Fatalln(composeMessage(ctx, logLevelTrace, l.prefix, message, params...))
 	}
 }
 
-func (l Log) Info(message string, params ...param) {
+func (l Log) Info(message string, params ...Param) {
 	l.InfoContext(context.Background(), message, params...)
 }
 
-func (l Log) Error(message string, params ...param) {
+func (l Log) Error(message string, params ...Param) {
 	l.ErrorContext(context.Background(), message, params...)
 }
 
-func (l Log) Debug(message string, params ...param) {
+func (l Log) Debug(message string, params ...Param) {
 	l.DebugContext(context.Background(), message, params...)
 }
 
-func (l Log) Fatal(message string, params ...param) {
+func (l Log) Fatal(message string, params ...Param) {
 	l.FatalContext(context.Background(), message, params...)
 }
 
-func (l Log) Trace(message string, params ...param) {
+func (l Log) Trace(message string, params ...Param) {
 	l.TraceContext(context.Background(), message, params...)
 }
 
-func (l Log) Param(key, value interface{}) param {
-	return param{
+func (l Log) Param(key, value interface{}) Param {
+	return Param{
 		key:   key,
 		value: value,
 	}
 }
 
-func composeMessage(ctx context.Context, level logLevel, prefix, message string, params ...param) string {
+func composeMessage(ctx context.Context, level logLevel, prefix, message string, params ...Param) string {
 	paramString := ""
 	for _, v := range params {
 		paramString += v.String()

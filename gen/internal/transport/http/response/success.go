@@ -7,6 +7,13 @@ import (
 )
 
 func WriteSuccessResponse(w http.ResponseWriter, res interface{}, headers map[string]string, statusCode int) error {
+	for k, v := range headers {
+		w.Header().Add(k, v)
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
 	if res != nil {
 		respByt, err := json.Marshal(res)
 		if err != nil {
@@ -19,10 +26,5 @@ func WriteSuccessResponse(w http.ResponseWriter, res interface{}, headers map[st
 		}
 	}
 
-	for k, v := range headers {
-		w.Header().Set(k, v)
-	}
-
-	w.WriteHeader(statusCode)
 	return nil
 }

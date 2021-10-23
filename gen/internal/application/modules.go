@@ -1,8 +1,6 @@
 package application
 
 const (
-	ModuleConfigLogger = "modules.config.logger"
-
 	ModuleLogger = "modules.logger"
 
 	// adaptor module definitions
@@ -19,4 +17,6 @@ const (
 	// handlers
 	ModuleExceptionHandler       = "modules.handlers.exception"
 	ModuleVatIDValidationHandler = "modules.handlers.vat"
+
+	ModuleRouter = "modules.router"
 )

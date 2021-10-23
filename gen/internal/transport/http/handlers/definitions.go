@@ -1,7 +1,7 @@
 package handlers
 
 const (
-	handlePathValidateVATID = "/validate/"
+	HandlePathValidateVATID = "/validate/"
 )
 
 const (

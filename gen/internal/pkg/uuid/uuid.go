@@ -24,7 +24,7 @@ func (u *UUID) UnmarshalJSON(in []byte) error {
 	return nil
 }
 
-func (u UUID) MarshalJSON() (out []byte, err error) {
+func (u *UUID) MarshalJSON() (out []byte, err error) {
 	if u.uuid == uuid.Nil {
 		return []byte(""), nil
 	}

@@ -73,7 +73,7 @@ type Log struct {
 }
 
 func (l *Log) Init(c container.Container) error {
-	config := c.Resolve(application.ModuleConfigLogger).(*Config)
+	config := c.GetModuleConfig(application.ModuleLogger).(*Config)
 	l.level = config.Level
 	l.prefix = "[application]"
 

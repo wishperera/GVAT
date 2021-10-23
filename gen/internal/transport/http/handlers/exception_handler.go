@@ -34,6 +34,7 @@ func (e *Exception) HandleException(ctx context.Context, w http.ResponseWriter, 
 	err = response.WriteExceptionResponse(w, exception, nil, code)
 	if err != nil {
 		e.log.ErrorContext(ctx, "failed to write exception response", e.log.Param("err", err))
+		return
 	}
 }
 
@@ -45,6 +46,10 @@ type responseFields struct {
 
 func mapError(err error) responseFields {
 	switch err.(type) {
+	case MethodNotAllowed:
+		return responseFields{
+			httpStatusCode: http.StatusMethodNotAllowed,
+		}
 	case services.ValidationError, euvies.ValidationError:
 		return responseFields{
 			code:           errorCodeInvalidRequest,
@@ -72,9 +77,16 @@ func mapError(err error) responseFields {
 func composeExceptionResponse(ctx context.Context, err error) (
 	exception response.Exception, httpCode int) {
 	fields := mapError(err)
-	return response.Exception{
-		Code:        fields.code,
-		Description: err.Error(),
-		TraceID:     ctx.Value(domain.ContextKeyTraceID).(uuid.UUID),
-	}, fields.httpStatusCode
+	resp := response.Exception{
+		Code:    fields.code,
+		TraceID: ctx.Value(domain.ContextKeyTraceID).(uuid.UUID),
+	}
+
+	if fields.code == errorCodeUnknown {
+		resp.Description = "something went wrong"
+	} else {
+		resp.Description = err.Error()
+	}
+
+	return resp, fields.httpStatusCode
 }

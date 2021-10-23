@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "github.com/wishperera/GVAT/gen/internal/bootstrap"
 
+func main() {
+	bootstrap.Boot()
 }

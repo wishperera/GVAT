@@ -14,6 +14,17 @@ type Exception struct {
 }
 
 func WriteExceptionResponse(w http.ResponseWriter, e Exception, headers map[string]string, statusCode int) error {
+	for k, v := range headers {
+		w.Header().Add(k, v)
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	if statusCode == http.StatusMethodNotAllowed {
+		return nil
+	}
+
 	respByt, err := json.Marshal(e)
 	if err != nil {
 		return fmt.Errorf("failed to marshal error response due: %s", err)
@@ -24,10 +35,5 @@ func WriteExceptionResponse(w http.ResponseWriter, e Exception, headers map[stri
 		return fmt.Errorf("failed to write error response due: %s", err)
 	}
 
-	for k, v := range headers {
-		w.Header().Set(k, v)
-	}
-
-	w.WriteHeader(statusCode)
 	return nil
 }

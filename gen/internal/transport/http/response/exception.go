@@ -3,14 +3,13 @@ package response
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wishperera/GVAT/gen/internal/pkg/uuid"
 	"net/http"
 )
 
 type Exception struct {
-	Code        int       `json:"code"`
-	Description string    `json:"description"`
-	TraceID     uuid.UUID `json:"trace_id"`
+	Code        int    `json:"code"`
+	Description string `json:"description"`
+	TraceID     string `json:"trace_id"`
 }
 
 func WriteExceptionResponse(w http.ResponseWriter, e Exception, headers map[string]string, statusCode int) error {

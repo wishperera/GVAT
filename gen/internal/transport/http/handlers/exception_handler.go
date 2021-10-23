@@ -6,9 +6,8 @@ import (
 	"github.com/wishperera/GVAT/gen/internal/adaptors/euvies"
 	"github.com/wishperera/GVAT/gen/internal/application"
 	"github.com/wishperera/GVAT/gen/internal/container"
-	"github.com/wishperera/GVAT/gen/internal/domain"
+	cont "github.com/wishperera/GVAT/gen/internal/pkg/context"
 	"github.com/wishperera/GVAT/gen/internal/pkg/log"
-	"github.com/wishperera/GVAT/gen/internal/pkg/uuid"
 	"github.com/wishperera/GVAT/gen/internal/services"
 	"github.com/wishperera/GVAT/gen/internal/transport/http/response"
 	"net/http"
@@ -79,7 +78,7 @@ func composeExceptionResponse(ctx context.Context, err error) (
 	fields := mapError(err)
 	resp := response.Exception{
 		Code:    fields.code,
-		TraceID: ctx.Value(domain.ContextKeyTraceID).(uuid.UUID),
+		TraceID: cont.ExtractTrace(ctx),
 	}
 
 	if fields.code == errorCodeUnknown {

@@ -41,3 +41,16 @@ func New() UUID {
 func (u UUID) String() string {
 	return u.uuid.String()
 }
+
+func Parse(s string) (parsed UUID, err error) {
+	id, err := uuid.Parse(s)
+	if err != nil {
+		return UUID{
+			uuid.Nil,
+		}, err
+	}
+
+	return UUID{
+		id,
+	}, nil
+}

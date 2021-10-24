@@ -31,8 +31,12 @@ paths:
             description: trace id for the request
             example: 534952e6-32f5-11ec-8d3d-0242ac130003
       responses:
-        '201':
-          description: success no response
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successResponse'
         '400':
           description: validation error
           content:
@@ -66,6 +70,17 @@ paths:
 
 components:
   schemas:
+    successResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+          description: signifies whether the number is valid or not
+        vatId:
+          type: string
+          example: DE123456789
+          description: requested vat id
     errorResponse:
       type: object
       properties:
@@ -79,7 +94,7 @@ components:
           description: 'error description'
           example: "field 'name' missing in request"
           format: 'free text'
-        trace_id:
+        traceId:
           type: string
           format: unique string
           example: 'f7e3e7a2-d397-4f3c-a7c4-2756159dc8b1'

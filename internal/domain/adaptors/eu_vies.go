@@ -1,5 +1,6 @@
 package adaptors
 
+//go:generate mockgen -destination=../../mocks/mock_euvies_adaptor.go -package=mocks -source=./eu_vies.go
 import (
 	"context"
 )

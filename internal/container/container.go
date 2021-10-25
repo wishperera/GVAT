@@ -1,5 +1,6 @@
 package container
 
+//go:generate mockgen -destination=../mocks/mock_container.go -package=mocks -source=./container.go
 import (
 	"github.com/wishperera/GVAT/internal/domain"
 	"log"

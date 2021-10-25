@@ -8,4 +8,6 @@ func (c contextKey) String() string {
 
 const (
 	ContextKeyTraceID contextKey = "trace-id"
+
+	CountryCodeGermany = "DE"
 )

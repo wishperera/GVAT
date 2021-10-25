@@ -23,7 +23,7 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.37.1
       - name: Run vet & lint
         run: |
-          go vet .
+          go vet ./...
           golangci-lint run --out-format checkstyle > golangci-lint-report.xml || true
       - name: Run testing
         run: go test --race -v

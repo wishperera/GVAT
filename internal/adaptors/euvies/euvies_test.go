@@ -14,6 +14,8 @@ func TestAdaptor_generateRequest(t *testing.T) {
 	mockLog := mocks.NewMockLog()
 	config := new(Config)
 	config.URL = "random url"
+	config.MaxWorkers = 1
+
 	mockContainer := mocks.NewMockContainer(ctrl)
 	mockContainer.EXPECT().GetModuleConfig(application.ModuleEUVIESAdaptor).Return(config).AnyTimes()
 	mockContainer.EXPECT().Resolve(application.ModuleLogger).Return(mockLog).AnyTimes()

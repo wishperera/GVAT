@@ -1,8 +1,8 @@
 package euvies
 
 type Request struct {
-	CountryCode string
-	VATNumber   string
+	CountryCode string `xml:"countryCode"`
+	VATNumber   string `xml:"vat_number"`
 }
 
 const requestTemplate = `

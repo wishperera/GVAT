@@ -18,6 +18,7 @@ func Boot() {
 	con := container.NewContainment()
 	bindAndInit(con)
 	con.Start(
+		application.ModuleEUVIESAdaptor,
 		application.ModuleRouter,
 	)
 
@@ -25,6 +26,7 @@ func Boot() {
 	log.Printf("shutting down application...\n")
 	con.ShutDown(
 		application.ModuleRouter,
+		application.ModuleEUVIESAdaptor,
 	)
 
 	log.Printf("application closed...\n")

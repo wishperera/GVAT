@@ -12,9 +12,11 @@ const (
 	envKeyBaseURL    = "EU_VIES_BASE_URL"
 	envKeyTimeout    = "EU_VIES_TIMEOUT"
 	envKeyMaxRetries = "EU_VIES_MAX_RETRIES"
+	envKeyMaxWorkers = "POOL_MAX_WORKERS"
 
 	defaultTimeoutSeconds = 5
 	defaultMaxRetries     = 2
+	defaultMaxWorkers     = 10
 
 	failedToParseEnvKeyDue = "failed to parse env key: [%s] due: [%s]"
 )
@@ -23,6 +25,7 @@ type Config struct {
 	URL        string        `json:"url" env:"EU_VIES_BASE_URL"`
 	Timeout    time.Duration `json:"timeout" env:"EU_VIES_TIMEOUT"`
 	MaxRetries int           `json:"max_retries" env:"EU_VIES_MAX_RETRIES"`
+	MaxWorkers int           `json:"max_workers" env:"POOL_MAX_WORKERS"`
 }
 
 func (c *Config) Init() error {
@@ -47,6 +50,17 @@ func (c *Config) Init() error {
 			return fmt.Errorf(failedToParseEnvKeyDue, envKeyTimeout, err)
 		}
 		c.MaxRetries = mr
+	}
+
+	pmws := os.Getenv(envKeyMaxWorkers)
+	if pmws == "" {
+		c.MaxWorkers = defaultMaxWorkers
+	} else {
+		pmw, err := strconv.Atoi(pmws)
+		if err != nil {
+			return fmt.Errorf(failedToParseEnvKeyDue, envKeyMaxWorkers, err)
+		}
+		c.MaxWorkers = pmw
 	}
 
 	return nil

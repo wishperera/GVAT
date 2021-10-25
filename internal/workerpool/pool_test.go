@@ -1,0 +1,105 @@
+package workerpool
+
+import (
+	"context"
+	"errors"
+	"github.com/wishperera/GVAT/internal/mocks"
+	"os"
+	"reflect"
+	"testing"
+)
+
+var pool *Pool
+var processError = errors.New("non negative number")
+
+func TestMain(m *testing.M) {
+	mockLog := mocks.NewMockLog()
+	maxWorkers := 10
+	process := func(ctx context.Context, in interface{}) (out interface{}, err error) {
+		input := in.(int)
+		if input < 0 {
+			return input * -1, nil
+		} else {
+			return out, processError
+		}
+
+	}
+	var err error
+	pool, err = NewPool(maxWorkers, process, mockLog)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	pool.Init()
+
+	code := m.Run()
+	pool.ShutDown()
+	os.Exit(code)
+}
+
+func TestPool_ExecuteJob(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		in  interface{}
+	}
+	type fields struct {
+		pool *Pool
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		wantOut interface{}
+		wantErr error
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx: context.Background(),
+				in:  -3,
+			},
+			fields: fields{
+				pool: pool,
+			},
+			wantOut: 3,
+			wantErr: nil,
+		},
+		{
+			name: "job failure",
+			args: args{
+				ctx: context.Background(),
+				in:  2,
+			},
+			fields: fields{
+				pool: pool,
+			},
+			wantOut: nil,
+			wantErr: processError,
+		},
+	}
+	for _, tt := range tests {
+		temp := tt
+		t.Run(tt.name, func(t *testing.T) {
+			gotOutChan, gotErrChan := temp.fields.pool.ExecuteJob(temp.args.ctx, temp.args.in)
+			var out interface{}
+			var err error
+
+			select {
+			case out = <-gotOutChan:
+				break
+			case err = <-gotErrChan:
+				break
+			}
+			close(gotOutChan)
+			close(gotErrChan)
+
+			if !reflect.DeepEqual(out, temp.wantOut) {
+				t.Errorf("ExecuteJob() gotOutChan = %v, want %v", out, temp.wantOut)
+			}
+			if !reflect.DeepEqual(err, temp.wantErr) {
+				t.Errorf("ExecuteJob() gotErrChan = %v, want %v", err, temp.wantErr)
+			}
+		})
+	}
+}

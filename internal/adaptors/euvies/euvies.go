@@ -8,6 +8,7 @@ import (
 	"github.com/wishperera/GVAT/internal/application"
 	"github.com/wishperera/GVAT/internal/container"
 	"github.com/wishperera/GVAT/internal/pkg/log"
+	"github.com/wishperera/GVAT/internal/workerpool"
 	"io/ioutil"
 	"net/http"
 	"text/template"
@@ -25,6 +26,8 @@ type Adaptor struct {
 	maxRetries int
 	baseURL    string
 	template   *template.Template
+	pool       *workerpool.Pool
+	wait       chan struct{}
 }
 
 func (e *Adaptor) Init(c container.Container) error {
@@ -41,7 +44,28 @@ func (e *Adaptor) Init(c container.Container) error {
 		return fmt.Errorf("failed to generate request template due: %s", err)
 	}
 	e.template = temp
+	e.pool, err = workerpool.NewPool(config.MaxWorkers, e.performWithRetry, e.log)
+	if err != nil {
+		return fmt.Errorf("failed to initialize worker pool due: %s", err)
+	}
+	e.wait = make(chan struct{}, 1)
 
+	return nil
+}
+
+func (e *Adaptor) Run() error {
+	e.pool.Init()
+	e.wait <- struct{}{}
+	return nil
+}
+
+func (e *Adaptor) Ready() chan struct{} {
+	return e.wait
+}
+
+func (e *Adaptor) Stop() error {
+	e.pool.ShutDown()
+	close(e.wait)
 	return nil
 }
 
@@ -51,20 +75,32 @@ func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) 
 		return false, err
 	}
 
-	resp, err := e.performWithRetry(ctx, request)
-	if err != nil {
+	outChan, errChan := e.pool.ExecuteJob(ctx, request)
+
+	var out interface{}
+
+	select {
+	case out = <-outChan:
+		response := out.(ResponseBody)
+		return response.Valid, nil
+	case err = <-errChan:
 		return false, err
 	}
 
-	return resp.Valid, nil
 }
 
 // performWithRetry: performs the request with retry
 // todo - use exponential backoff
-func (e *Adaptor) performWithRetry(ctx context.Context, req *http.Request) (response ResponseBody, err error) {
+type performRequestInput struct {
+	ctx context.Context
+	req *http.Request
+}
+
+func (e *Adaptor) performWithRetry(ctx context.Context, input interface{}) (response interface{}, err error) {
+	in := input.(*http.Request)
 	var res *http.Response
 	for i := 0; i < e.maxRetries; i++ {
-		res, err = e.client.Do(req)
+		res, err = e.client.Do(in)
 		if err != nil {
 			e.log.ErrorContext(ctx, "failed to perform request",
 				e.log.Param("err", err),

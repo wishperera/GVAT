@@ -54,7 +54,7 @@ func (p *Pool) ShutDown() {
 
 func (p *Pool) ExecuteJob(ctx context.Context, in interface{}) (outChan chan interface{}, errChan chan error) {
 	wk := p.workers[p.index]
-	p.index += 1
+	p.index++
 	if p.index > p.maxWorkers-1 {
 		p.index = 0
 	}

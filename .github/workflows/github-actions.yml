@@ -26,4 +26,4 @@ jobs:
           go vet ./...
           golangci-lint run --out-format checkstyle > golangci-lint-report.xml || true
       - name: Run testing
-        run: go test --race -v
+        run: go test ./... --race -v

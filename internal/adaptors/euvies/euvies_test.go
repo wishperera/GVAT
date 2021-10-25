@@ -66,5 +66,4 @@ func TestAdaptor_generateRequest(t *testing.T) {
 		t.Fail()
 		return
 	}
-
 }

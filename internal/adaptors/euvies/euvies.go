@@ -86,16 +86,10 @@ func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) 
 	case err = <-errChan:
 		return false, err
 	}
-
 }
 
 // performWithRetry: performs the request with retry
 // todo - use exponential backoff
-type performRequestInput struct {
-	ctx context.Context
-	req *http.Request
-}
-
 func (e *Adaptor) performWithRetry(ctx context.Context, input interface{}) (response interface{}, err error) {
 	in := input.(*http.Request)
 	var res *http.Response

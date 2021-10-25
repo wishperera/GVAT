@@ -10,7 +10,7 @@ import (
 )
 
 var pool *Pool
-var processError = errors.New("non negative number")
+var errorProcess = errors.New("non negative number")
 
 func TestMain(m *testing.M) {
 	mockLog := mocks.NewMockLog()
@@ -19,10 +19,8 @@ func TestMain(m *testing.M) {
 		input := in.(int)
 		if input < 0 {
 			return input * -1, nil
-		} else {
-			return out, processError
 		}
-
+		return out, errorProcess
 	}
 	var err error
 	pool, err = NewPool(maxWorkers, process, mockLog)
@@ -75,7 +73,7 @@ func TestPool_ExecuteJob(t *testing.T) {
 				pool: pool,
 			},
 			wantOut: nil,
-			wantErr: processError,
+			wantErr: errorProcess,
 		},
 	}
 	for _, tt := range tests {

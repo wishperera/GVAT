@@ -26,6 +26,7 @@ func NewWorker(id int, process Process, pool *Pool, log log.Logger) *Worker {
 	return w
 }
 
+//nolint //intentional
 func (w *Worker) Input() chan jobInput {
 	return w.input
 }

@@ -16,13 +16,16 @@ const (
 	envKeyQueueSize        = "POOL_QUEUE_SIZE"
 	envKeyWorkerBufferSize = "POOL_WORKER_BUFFER"
 
-	defaultTimeoutSeconds   = 5
-	defaultMaxRetries       = 2
-	defaultMaxWorkers       = 10
-	defaultQueueSize        = 1000
-	defaultWorkerBufferSize = 10
+	defaultTimeoutMilliSeconds = 5000
+	defaultMaxRetries          = 2
+	defaultMaxWorkers          = 10
+	defaultQueueSize           = 1000
+	defaultWorkerBufferSize    = 10
 
 	failedToParseEnvKeyDue = "failed to parse env key: [%s] due: [%s]"
+
+	// milliseconds to nano sec multiplier
+	multiplier = 1e6
 )
 
 type Config struct {
@@ -38,13 +41,13 @@ func (c *Config) Init() error {
 	c.URL = os.Getenv(envKeyBaseURL)
 	ts := os.Getenv(envKeyTimeout)
 	if ts == "" {
-		c.Timeout = time.Second * defaultTimeoutSeconds
+		c.Timeout = time.Millisecond * defaultTimeoutMilliSeconds
 	} else {
 		t, err := strconv.Atoi(ts)
 		if err != nil {
 			return fmt.Errorf(failedToParseEnvKeyDue, envKeyTimeout, err)
 		}
-		c.Timeout = time.Second * time.Duration(t)
+		c.Timeout = time.Duration(t * multiplier)
 	}
 
 	mrs := os.Getenv(envKeyTimeout)

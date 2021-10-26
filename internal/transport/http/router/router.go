@@ -12,6 +12,7 @@ import (
 
 const (
 	routerShutDownTimeoutSeconds = 5
+	multiplier                   = 1e6
 )
 
 type Router struct {
@@ -36,8 +37,8 @@ func (r *Router) Init(c container.Container) error {
 	r.server = &http.Server{
 		Addr:         "0.0.0.0:" + serverConfig.Port,
 		Handler:      r.mux,
-		ReadTimeout:  time.Second * time.Duration(serverConfig.ReadTimeout),
-		WriteTimeout: time.Second * time.Duration(serverConfig.WriteTimeout),
+		ReadTimeout:  time.Duration(serverConfig.ReadTimeout * multiplier),
+		WriteTimeout: time.Duration(serverConfig.WriteTimeout * multiplier),
 	}
 	r.ready = make(chan struct{}, 1)
 

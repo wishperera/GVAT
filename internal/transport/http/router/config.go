@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	envKeyServerPort      = "SERVER_PORT"
-	envKeyReadTimeout     = "SERVER_READ_TIMEOUT"
-	envKeyWriteTimeout    = "SERVER_WRITE_TIMEOUT"
-	defaultPort           = "8889"
-	defaultTimeoutSeconds = 10 // timeout in seconds
+	envKeyServerPort           = "SERVER_PORT"
+	envKeyReadTimeout          = "SERVER_READ_TIMEOUT"
+	envKeyWriteTimeout         = "SERVER_WRITE_TIMEOUT"
+	defaultPort                = "8080"
+	defaultTimeoutMilliSeconds = 10000 // timeout in seconds
 
 	invalidValueProvidedForEnv = "invalid value provided for env: %s"
 
@@ -34,7 +34,7 @@ func (c *Config) Init() (err error) {
 
 	rt := os.Getenv(envKeyReadTimeout)
 	if rt == "" {
-		c.ReadTimeout = defaultTimeoutSeconds
+		c.ReadTimeout = defaultTimeoutMilliSeconds
 	} else {
 		c.ReadTimeout, err = strconv.ParseInt(rt, base10, bitSize64)
 		if err != nil {
@@ -44,7 +44,7 @@ func (c *Config) Init() (err error) {
 
 	wt := os.Getenv(envKeyReadTimeout)
 	if wt == "" {
-		c.WriteTimeout = defaultTimeoutSeconds
+		c.WriteTimeout = defaultTimeoutMilliSeconds
 	} else {
 		c.WriteTimeout, err = strconv.ParseInt(rt, base10, bitSize64)
 		if err != nil {

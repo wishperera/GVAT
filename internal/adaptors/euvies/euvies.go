@@ -103,7 +103,7 @@ func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) 
 func (e *Adaptor) performWithRetry(ctx context.Context, input interface{}) (response interface{}, err error) {
 	in := input.(*http.Request)
 	var res *http.Response
-	for i := 0; i < e.maxRetries; i++ {
+	for i := 0; i < e.maxRetries+1; i++ {
 		res, err = e.client.Do(in)
 		if err != nil {
 			e.log.ErrorContext(ctx, "failed to perform request",

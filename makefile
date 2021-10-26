@@ -36,4 +36,4 @@ configure-env:
 
 clean-docker:
 	docker stop gvat
-	docker rmi $(docker images | grep 'gvat')
+	docker rmi $(docker image ls | grep 'gvat')

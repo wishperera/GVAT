@@ -44,7 +44,12 @@ func (e *Adaptor) Init(c container.Container) error {
 		return fmt.Errorf("failed to generate request template due: %s", err)
 	}
 	e.template = temp
-	e.pool, err = workerpool.NewPool(config.MaxWorkers, e.performWithRetry, e.log)
+	e.pool, err = workerpool.NewPool(workerpool.Config{
+		MaxWorkers:       config.MaxWorkers,
+		QueueSize:        config.QueueSize,
+		WorkerBufferSize: config.WorkerBuffer,
+		Process:          e.performWithRetry,
+	}, e.log)
 	if err != nil {
 		return fmt.Errorf("failed to initialize worker pool due: %s", err)
 	}
@@ -75,7 +80,12 @@ func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) 
 		return false, err
 	}
 
-	outChan, errChan := e.pool.ExecuteJob(ctx, request)
+	outChan, errChan, err := e.pool.ExecuteJob(ctx, request)
+	if err != nil {
+		return false, DependencyError{
+			fmt.Errorf("failed to process request due: %s", err),
+		}
+	}
 
 	var out interface{}
 

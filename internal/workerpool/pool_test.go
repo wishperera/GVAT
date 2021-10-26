@@ -15,6 +15,8 @@ var errorProcess = errors.New("non negative number")
 func TestMain(m *testing.M) {
 	mockLog := mocks.NewMockLog()
 	maxWorkers := 10
+	poolBufferSize := 1000
+	poolWorkerBuffer := 10
 	process := func(ctx context.Context, in interface{}) (out interface{}, err error) {
 		input := in.(int)
 		if input < 0 {
@@ -23,7 +25,12 @@ func TestMain(m *testing.M) {
 		return out, errorProcess
 	}
 	var err error
-	pool, err = NewPool(maxWorkers, process, mockLog)
+	pool, err = NewPool(Config{
+		MaxWorkers:       maxWorkers,
+		QueueSize:        poolBufferSize,
+		WorkerBufferSize: poolWorkerBuffer,
+		Process:          process,
+	}, mockLog)
 	if err != nil {
 		os.Exit(1)
 	}
@@ -79,9 +86,13 @@ func TestPool_ExecuteJob(t *testing.T) {
 	for _, tt := range tests {
 		temp := tt
 		t.Run(tt.name, func(t *testing.T) {
-			gotOutChan, gotErrChan := temp.fields.pool.ExecuteJob(temp.args.ctx, temp.args.in)
+			gotOutChan, gotErrChan, err := temp.fields.pool.ExecuteJob(temp.args.ctx, temp.args.in)
+			if err != nil {
+				t.Errorf("failed to execute job due: %s", err)
+				return
+			}
+
 			var out interface{}
-			var err error
 
 			select {
 			case out = <-gotOutChan:

@@ -78,13 +78,6 @@ go build -o gvat
 ./gvat
 ```
 
-NOTE : some already compiled binaries are available below. To run configure the application
-environment config as in config section and run the binary.
-
-- [gvat-darwin-amd64](bin/gvat-darwin-amd64)
-- [gvat-linux-amd64](bin/gvat-linux-amd64)
-- [gvat-windows-amd64](bin/gvat-windows-amd64)
-
 ### Verification of functionality
 
 Use the following curl call to verify the functionality.

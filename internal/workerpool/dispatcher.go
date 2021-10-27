@@ -19,7 +19,6 @@ type dispatcherConfig struct {
 	queueSize        int
 	maxWorkers       int
 	workerBufferSize int
-	wg               *sync.WaitGroup
 	process          Process
 }
 
@@ -57,32 +56,28 @@ func (d *Dispatcher) Queue() chan<- jobInput {
 	return d.queue
 }
 
-func (d *Dispatcher) ShutDown() chan<- struct{} {
+func (d *Dispatcher) ShutDown() <-chan struct{} {
+	close(d.queue)
 	return d.shutdown
 }
 
 func (d *Dispatcher) run() {
 	d.log.Info("dispatcher started...")
-	d.config.wg.Add(1)
-	for {
-		select {
-		case in := <-d.queue:
-			wk := d.workers[d.index]
-			d.index++
-			if d.index > d.config.maxWorkers-1 {
-				d.index = 0
-			}
-
-			d.log.InfoContext(in.ctx, "job assigned..", d.log.Param("worker-id", wk.config.id))
-
-			wk.Input() <- in
-		case <-d.shutdown:
-			for _, v := range d.workers {
-				v.ShutDown() <- struct{}{}
-			}
-			d.wg.Wait()
-			d.log.Info("dispatcher shut down...")
-			d.config.wg.Done()
+	for in := range d.queue {
+		wk := d.workers[d.index]
+		d.index++
+		if d.index > d.config.maxWorkers-1 {
+			d.index = 0
 		}
+
+		d.log.InfoContext(in.ctx, "job assigned..", d.log.Param("worker-id", wk.config.id))
+
+		wk.Input() <- in
 	}
+	for _, v := range d.workers {
+		close(v.input)
+	}
+	d.wg.Wait()
+	d.log.Info("dispatcher shut down...")
+	d.shutdown <- struct{}{}
 }

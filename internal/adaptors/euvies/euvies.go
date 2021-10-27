@@ -101,6 +101,8 @@ func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) 
 	close(outChan)
 	close(errChan)
 
+	e.log.Info("successfully performed request to eu/vies database")
+
 	return valid, outErr
 }
 

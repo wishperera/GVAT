@@ -57,7 +57,7 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 				context.Background(),
 				"FR123456789",
 			},
-			wantErr:   true,
+			wantErr:   false,
 			wantValid: false,
 		},
 		{
@@ -70,7 +70,7 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 				context.Background(),
 				"DE1234567",
 			},
-			wantErr:   true,
+			wantErr:   false,
 			wantValid: false,
 		},
 	}
@@ -83,8 +83,8 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 			v.adaptors.euVies = temp.fields.euViesAdaptor
 
 			valid, err := v.validateFormat(temp.args.in0, temp.args.id)
-			if err != nil != temp.wantErr {
-				t.Errorf("validateFormat() error = %v, wantErr %v", err, temp.wantErr)
+			if (err != nil) != temp.wantErr {
+				t.Errorf("validateFormat() error = %v, wantErr %v", err != nil, temp.wantErr)
 			}
 
 			if valid != temp.wantValid {

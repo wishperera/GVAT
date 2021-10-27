@@ -34,7 +34,6 @@ func NewPool(config Config, log log.Logger) (p *Pool, err error) {
 		queueSize:        p.config.QueueSize,
 		maxWorkers:       p.config.MaxWorkers,
 		workerBufferSize: p.config.WorkerBufferSize,
-		wg:               p.wg,
 		process:          p.config.Process,
 	}, p.log)
 
@@ -50,8 +49,7 @@ func (p *Pool) Init() {
 func (p *Pool) ShutDown() {
 	p.shutDown = true
 	p.log.Info("worker pool in shutting down ...")
-	p.dispatcher.ShutDown() <- struct{}{}
-	p.wg.Wait()
+	<-p.dispatcher.ShutDown()
 	p.log.Info("worker pool in shutdown gracefully ...")
 }
 

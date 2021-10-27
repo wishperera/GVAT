@@ -25,8 +25,8 @@ func Boot() {
 	<-quit
 	log.Printf("shutting down application...\n")
 	con.ShutDown(
-		application.ModuleRouter,
 		application.ModuleEUVIESAdaptor,
+		application.ModuleRouter,
 	)
 
 	log.Printf("application closed...\n")

@@ -116,7 +116,7 @@ if your VAT id is valid  you should receive a response similar to below
 }
 ```
 
-The full API reference can be found  [here](api-definition.yaml).
+The full API reference can be found  [here](api-definition.yaml). Postman collection can be found [here](https://www.getpostman.com/collections/e0835cc1a9ba6154eca7).
 
 
 #### Room for improvement

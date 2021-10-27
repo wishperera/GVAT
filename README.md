@@ -7,6 +7,7 @@ German vat id validator
 GVAT is a REST service for validating the German VAT ID numbers against the EU/VIES online database. These can be
 found in `.env` file in the project root.
 
+![design](docs/img/architecture.png)
 #### Configuration
 
 all application configurations are provided as environment variables. 
@@ -116,3 +117,9 @@ if your VAT id is valid  you should receive a response similar to below
 ```
 
 The full API reference can be found  [here](api-definition.yaml).
+
+
+#### Room for improvement
+
+- use exponential backoff while calling the eu/vies api
+- integrate metrics

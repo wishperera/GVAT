@@ -75,7 +75,7 @@ func (e *Adaptor) Stop() error {
 	return nil
 }
 
-func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) (valid bool, err error) {
+func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) (valid bool, outErr error) {
 	request, err := e.generateRequest(ctx, countryCode, vatID)
 	if err != nil {
 		return false, err
@@ -93,10 +93,15 @@ func (e *Adaptor) ValidateVATID(ctx context.Context, countryCode, vatID string) 
 	select {
 	case out = <-outChan:
 		response := out.(ResponseBody)
-		return response.Valid, nil
-	case err = <-errChan:
-		return false, err
+		valid = response.Valid
+	case err := <-errChan:
+		outErr = err
 	}
+
+	close(outChan)
+	close(errChan)
+
+	return valid, outErr
 }
 
 // performWithRetry: performs the request with retry

@@ -22,6 +22,9 @@ const (
 	defaultWorkerBufferSize    = 10
 
 	failedToParseEnvKeyDue = "failed to parse env key: [%s] due: [%s]"
+
+	base10    = 10
+	bitSize64 = 64
 )
 
 type Config struct {
@@ -39,7 +42,7 @@ func (c *Config) Init() error {
 	if timeoutStr == "" {
 		c.Timeout = defaultTimeoutMilliSeconds
 	} else {
-		timeout, err := strconv.ParseInt(timeoutStr, 10, 64)
+		timeout, err := strconv.ParseInt(timeoutStr, base10, bitSize64)
 		if err != nil {
 			return fmt.Errorf(failedToParseEnvKeyDue, envKeyTimeout, err)
 		}

@@ -25,31 +25,6 @@ all application configurations are provided as environment variables.
 | SERVER_WRITE_TIMEOUT | server write timeout milli (ms)        | 10000   |
 ### How to build and run
 
-#### Using docker
-
-- make sure the latest version of docker is installed
-- clone the repository using git 
-
-```shell
-git clone https://github.com/wishperera/GVAT.git
-```
-- enter the root directory and run the following command. Edit the `.env` file if you need to change the configurations
-
-```shell
-cd GVAT
-sh cmd/docker_build_and_run.sh
-```
-
-- verify the container is running 
-
-```shell
-docker ps
-```
-- if everyting goes smooth  you should see something like below
-
-![include](docs/img/docker-container.png)
-
-
 #### Using go build
 
 ###### On Linux
@@ -77,6 +52,40 @@ sh cmd/build_and_run.sh
 go build -o gvat
 ./gvat
 ```
+
+#### Using docker
+
+- make sure the latest version of docker is installed
+- clone the repository using git
+
+```shell
+git clone https://github.com/wishperera/GVAT.git
+```
+
+- enable the docker containers to reach external networks as follows
+
+```shell
+sudo sysctl net.ipv4.conf.all.forwarding=1
+sudo iptables -P FORWARD ACCEPT
+```
+
+- enter the root directory and run the following command. Edit the `.env` file if you need to change the configurations
+
+```shell
+cd GVAT
+sh cmd/docker_build_and_run.sh
+```
+
+- verify the container is running
+
+```shell
+docker ps
+```
+- if everyting goes smooth  you should see something like below
+
+![include](docs/img/docker-container.png)
+
+
 
 ### Verification of functionality
 

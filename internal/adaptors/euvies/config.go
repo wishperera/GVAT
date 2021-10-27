@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"time"
 )
 
 const (
@@ -23,42 +22,39 @@ const (
 	defaultWorkerBufferSize    = 10
 
 	failedToParseEnvKeyDue = "failed to parse env key: [%s] due: [%s]"
-
-	// milliseconds to nano sec multiplier
-	multiplier = 1e6
 )
 
 type Config struct {
-	URL          string        `json:"url" env:"EU_VIES_BASE_URL"`
-	Timeout      time.Duration `json:"timeout" env:"EU_VIES_TIMEOUT"`
-	MaxRetries   int           `json:"max_retries" env:"EU_VIES_MAX_RETRIES"`
-	MaxWorkers   int           `json:"max_workers" env:"POOL_MAX_WORKERS"`
-	QueueSize    int           `json:"queue_size" env:"POOL_QUEUE_SIZE"`
-	WorkerBuffer int           `json:"worker_buffer" env:"POOL_WORKER_BUFFER"`
+	URL          string `json:"url" env:"EU_VIES_BASE_URL"`
+	Timeout      int64  `json:"timeout" env:"EU_VIES_TIMEOUT"`
+	MaxRetries   int    `json:"max_retries" env:"EU_VIES_MAX_RETRIES"`
+	MaxWorkers   int    `json:"max_workers" env:"POOL_MAX_WORKERS"`
+	QueueSize    int    `json:"queue_size" env:"POOL_QUEUE_SIZE"`
+	WorkerBuffer int    `json:"worker_buffer" env:"POOL_WORKER_BUFFER"`
 }
 
 func (c *Config) Init() error {
 	c.URL = os.Getenv(envKeyBaseURL)
-	ts := os.Getenv(envKeyTimeout)
-	if ts == "" {
-		c.Timeout = time.Millisecond * defaultTimeoutMilliSeconds
+	timeoutStr := os.Getenv(envKeyTimeout)
+	if timeoutStr == "" {
+		c.Timeout = defaultTimeoutMilliSeconds
 	} else {
-		t, err := strconv.Atoi(ts)
+		timeout, err := strconv.ParseInt(timeoutStr, 10, 64)
 		if err != nil {
 			return fmt.Errorf(failedToParseEnvKeyDue, envKeyTimeout, err)
 		}
-		c.Timeout = time.Duration(t * multiplier)
+		c.Timeout = timeout
 	}
 
-	mrs := os.Getenv(envKeyTimeout)
-	if mrs == "" {
+	maxRetryStr := os.Getenv(envKeyMaxRetries)
+	if maxRetryStr == "" {
 		c.MaxRetries = defaultMaxRetries
 	} else {
-		mr, err := strconv.Atoi(ts)
+		maxRetries, err := strconv.Atoi(maxRetryStr)
 		if err != nil {
 			return fmt.Errorf(failedToParseEnvKeyDue, envKeyTimeout, err)
 		}
-		c.MaxRetries = mr
+		c.MaxRetries = maxRetries
 	}
 
 	maxWorkerStr := os.Getenv(envKeyMaxWorkers)
@@ -85,13 +81,13 @@ func (c *Config) Init() error {
 
 	workerBufferSizeStr := os.Getenv(envKeyWorkerBufferSize)
 	if workerBufferSizeStr == "" {
-		c.QueueSize = defaultWorkerBufferSize
+		c.WorkerBuffer = defaultWorkerBufferSize
 	} else {
-		pbs, err := strconv.Atoi(workerBufferSizeStr)
+		workerBufferSize, err := strconv.Atoi(workerBufferSizeStr)
 		if err != nil {
 			return fmt.Errorf(failedToParseEnvKeyDue, envKeyWorkerBufferSize, err)
 		}
-		c.QueueSize = pbs
+		c.WorkerBuffer = workerBufferSize
 	}
 
 	return nil

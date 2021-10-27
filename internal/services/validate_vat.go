@@ -25,9 +25,13 @@ func (v *ValidateVAT) Init(c container.Container) error {
 }
 
 func (v *ValidateVAT) Validate(ctx context.Context, id string) (valid bool, err error) {
-	err = v.validateFormat(ctx, id)
+	valid, err = v.validateFormat(ctx, id)
 	if err != nil {
 		return false, err
+	}
+
+	if !valid {
+		return valid, nil
 	}
 
 	countryCode := id[:2]
@@ -37,22 +41,16 @@ func (v *ValidateVAT) Validate(ctx context.Context, id string) (valid bool, err 
 }
 
 // validateFormat: checks the id is a german id, and validates whether the format is correct
-func (v *ValidateVAT) validateFormat(_ context.Context, id string) error {
+func (v *ValidateVAT) validateFormat(_ context.Context, id string) (valid bool, err error) {
 	// check the prefix for the country code
-	valid, err := regexp.Match("DE[[:digit:]]{9}", []byte(id))
+	valid, err = regexp.Match("DE[[:digit:]]{9}", []byte(id))
 	if err != nil {
-		return ValidationError{
+		return false, ValidationError{
 			fmt.Errorf("failed to validate id due: %s", err),
 		}
 	}
 
-	if !valid {
-		return ValidationError{
-			fmt.Errorf("provided id:[%s] is not a valid German vat number", id),
-		}
-	}
-
-	return nil
+	return valid, nil
 }
 
 // checkAgainstVIES: cross-check the id against the online vies database

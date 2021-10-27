@@ -91,11 +91,13 @@ NOTE : replace the `{PORT}` field with the value you configured for `SERVICE_POR
 default example:
 
 ```shell
-curl --location --request GET 'http://localhost:8080/validate/DE129357125' \
+curl --location --request GET 'http://localhost:8080/validate/{VAT_ID}' \
 --header 'trace-id: a27c776a-341e-11ec-8d3d-0242ac130000'
 ```
 
-upon success you should receive a response similar to below
+NOTE : replace the `{VAT_ID}` with a valid vat id
+
+if your VAT id is valid  you should receive a response similar to below
 
 ```json
 {

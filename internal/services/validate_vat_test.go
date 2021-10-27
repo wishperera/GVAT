@@ -28,10 +28,11 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 	mockAdaptor := mocks.NewMockEUVIESAdaptor(ctrl)
 
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name      string
+		fields    fields
+		args      args
+		wantValid bool
+		wantErr   bool
 	}{
 		{
 			name: "valid german id",
@@ -43,7 +44,8 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 				context.Background(),
 				"DE123456789",
 			},
-			wantErr: false,
+			wantErr:   false,
+			wantValid: true,
 		},
 		{
 			name: "valid non-german id",
@@ -55,7 +57,8 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 				context.Background(),
 				"FR123456789",
 			},
-			wantErr: true,
+			wantErr:   true,
+			wantValid: false,
 		},
 		{
 			name: "invalid german vat id",
@@ -67,7 +70,8 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 				context.Background(),
 				"DE1234567",
 			},
-			wantErr: true,
+			wantErr:   true,
+			wantValid: false,
 		},
 	}
 	for _, tt := range tests {
@@ -78,8 +82,13 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 			}
 			v.adaptors.euVies = temp.fields.euViesAdaptor
 
-			if err := v.validateFormat(temp.args.in0, temp.args.id); (err != nil) != temp.wantErr {
+			valid, err := v.validateFormat(temp.args.in0, temp.args.id)
+			if err != nil != temp.wantErr {
 				t.Errorf("validateFormat() error = %v, wantErr %v", err, temp.wantErr)
+			}
+
+			if valid != temp.wantValid {
+				t.Errorf("validity expected: %v got: %v", temp.wantValid, valid)
 			}
 		})
 	}

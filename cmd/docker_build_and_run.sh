@@ -11,4 +11,7 @@ if docker image ls -a "$IMAGE_NAME" | grep -Fq "$IMAGE_NAME" 1</dev/null; then
   docker rm "$IMAGE_NAME"
 fi
 
-docker run -dp ${SERVER_PORT}:${SERVER_PORT} --env-file .env  --name gvat gvat
+#sudo sysctl net.ipv4.conf.all.forwarding=1
+#sudo iptables -P FORWARD ACCEPT
+
+docker run -dp ${SERVER_PORT}:${SERVER_PORT} --dns 8.8.8.8 --env-file .env --name gvat gvat

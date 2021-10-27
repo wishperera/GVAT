@@ -2,8 +2,8 @@
 
 all: build
 
-build:
-	sh cmd/build.sh
+build-and-run:
+	sh cmd/build_and_run.sh
 
 build-darwin-amd64:
 	env GOOS=darwin GOARCH=amd64 go build -o bin/gvat-darwin-amd64

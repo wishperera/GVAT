@@ -1,6 +1,6 @@
 .DEFAULT:
 
-all: build
+all: build-and-run
 
 build-and-run:
 	sh cmd/build_and_run.sh

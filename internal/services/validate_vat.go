@@ -15,11 +15,16 @@ type ValidateVAT struct {
 	adaptors struct {
 		euVies adaptors.EUVIESAdaptor
 	}
+	allowed map[string]int
 }
 
 func (v *ValidateVAT) Init(c container.Container) error {
 	v.log = c.Resolve(application.ModuleLogger).(log.Logger).NewLog("services.vat_validation")
 	v.adaptors.euVies = c.Resolve(application.ModuleEUVIESAdaptor).(adaptors.EUVIESAdaptor)
+	v.allowed = map[string]int{
+		"DE": 9,
+		"FR": 11,
+	}
 
 	return nil
 }
@@ -42,8 +47,19 @@ func (v *ValidateVAT) Validate(ctx context.Context, id string) (valid bool, err 
 
 // validateFormat: checks the id is a german id, and validates whether the format is correct
 func (v *ValidateVAT) validateFormat(_ context.Context, id string) (valid bool, err error) {
+	if len(id) < 2 {
+		return false, nil
+	}
+
+	length, ok := v.allowed[id[:2]]
+	if !ok {
+		return false, nil
+	}
+
+	match := fmt.Sprintf("[[:digit:]]{%d}", length)
+
 	// check the prefix for the country code
-	valid, err = regexp.Match("DE[[:digit:]]{9}", []byte(id))
+	valid, err = regexp.Match(match, []byte(id[2:]))
 	if err != nil {
 		return false, ValidationError{
 			fmt.Errorf("failed to validate id due: %s", err),

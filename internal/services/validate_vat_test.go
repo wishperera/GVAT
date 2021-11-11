@@ -55,10 +55,10 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 			},
 			args: args{
 				context.Background(),
-				"FR123456789",
+				"FR12345678902",
 			},
 			wantErr:   false,
-			wantValid: false,
+			wantValid: true,
 		},
 		{
 			name: "invalid german vat id",
@@ -79,6 +79,10 @@ func TestValidateVAT_validateFormat(t *testing.T) {
 		t.Run(temp.name, func(t *testing.T) {
 			v := &ValidateVAT{
 				log: temp.fields.log,
+				allowed: map[string]int{
+					"DE": 9,
+					"FR": 11,
+				},
 			}
 			v.adaptors.euVies = temp.fields.euViesAdaptor
 
